@@ -1,0 +1,31 @@
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-lg card-shadow p-6 border-l-4 border-primary">
+    <h3 class="text-sm font-medium text-gray-500 mb-1">Patrimonio Total</h3>
+    <p class="text-3xl font-bold text-gray-800">€{{ resumen().total | number : '1.0-0' }}</p>
+  </div>
+
+  <div class="bg-white rounded-lg card-shadow p-6 border-l-4 border-secondary">
+    <h3 class="text-sm font-medium text-gray-500 mb-1">Ingresos Mensuales</h3>
+    <p class="text-3xl font-bold text-gray-800">
+      €{{ resumen().ingresosMensuales | number : '1.0-0' }}
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg card-shadow p-6 border-l-4 border-accent">
+    <h3 class="text-sm font-medium text-gray-500 mb-1">Ahorro Mensual</h3>
+    <p class="text-3xl font-bold text-gray-800">
+      €{{ resumen().ahorroMensual | number : '1.0-0' }}
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg card-shadow p-6 border-l-4 border-purple-500">
+    <h3 class="text-sm font-medium text-gray-500 mb-1">Rentabilidad</h3>
+    <p
+      class="text-3xl font-bold"
+      [class]="resumen().rentabilidadTotal >= 0 ? 'text-green-600' : 'text-red-600'"
+    >
+      {{ resumen().rentabilidadTotal >= 0 ? '+' : ''
+      }}{{ resumen().rentabilidadTotal | number : '1.1-1' }}%
+    </p>
+  </div>
+</div>

@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+.card-shadow {
+  @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+}
+
+.btn-primary {
+  @apply bg-primary text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors;
+}
+
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary;
+}

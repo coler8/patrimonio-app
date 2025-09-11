@@ -1,0 +1,98 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <!-- Formulario -->
+  <div class="bg-white rounded-lg card-shadow p-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Distribución Mensual</h2>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Liquidez (Cuentas corrientes)
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.liquidez"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().liquidez | number : '1.1-1' }}% del total
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"> Cuentas Remuneradas </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.cuentasRemuneradas"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().cuentasRemuneradas | number : '1.1-1' }}% del total
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Renta Variable (Acciones/ETFs)
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.rentaVariable"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().rentaVariable | number : '1.1-1' }}% del total
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"> Renta Fija (Bonos) </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.rentaFija"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().rentaFija | number : '1.1-1' }}% del total
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"> Criptomonedas </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.cryptos"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().cryptos | number : '1.1-1' }}% del total
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"> Fondos Indexados </label>
+        <input
+          type="number"
+          [(ngModel)]="distribucionLocal.fondosIndexados"
+          (ngModelChange)="onDistribucionChange()"
+          class="input-field"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          {{ porcentajes().fondosIndexados | number : '1.1-1' }}% del total
+        </p>
+      </div>
+    </div>
+
+    <button (click)="guardarMes()" class="w-full mt-6 btn-primary">Guardar Mes Actual</button>
+  </div>
+
+  <!-- Gráfico -->
+  <div class="bg-white rounded-lg card-shadow p-6">
+    <h3 class="text-xl font-bold mb-4 text-gray-800">Distribución Actual</h3>
+    <!-- <canvas #chartCanvas width="400" height="400"></canvas> -->
+  </div>
+</div>
