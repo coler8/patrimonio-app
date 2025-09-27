@@ -1,148 +1,62 @@
+<div class="bg-white rounded-lg card-shadow p-3 mb-4">
+  <div class="p-4 bg-blue-50 rounded-lg">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="flex-1">
+        <h4 class="font-medium text-blue-900 mb-2">Reparticion mensual a invertir:</h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>• Cuenta remunerada: 850 €</li>
+          <li>• MSCI World: 500 €</li>
+          <li>• Emerging Markets: 250 €</li>
+          <li>• Criptos: 100 €</li>
+        </ul>
+      </div>
+
+      <div class="flex-1">
+        <h4 class="font-medium text-blue-900 mb-2">Recomendaciones de Expertos:</h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>• Mantén 3-6 meses de gastos en liquidez (15-20%)</li>
+          <li>• Máximo 5-10% en criptomonedas para diversificación</li>
+          <li>• Fondos indexados: base sólida del 20-40% del portfolio</li>
+          <li>• Cuentas remuneradas: 15-25% para emergencias con rentabilidad</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-  <!-- Configuración de Objetivos -->
   <div class="bg-white rounded-lg card-shadow p-6">
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Objetivos de Distribución</h2>
 
     <div class="space-y-4">
+      @for (cat of categorias; track cat) {
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          Liquidez - Objetivo (%)
+          {{ cat.nombre }} - Objetivo (%)
         </label>
         <input
           type="number"
           min="0"
           max="100"
-          [(ngModel)]="objetivosLocal.liquidez"
+          [(ngModel)]="objetivosLocal[cat.key]"
           (ngModelChange)="onObjetivosChange()"
           class="input-field"
         />
         <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
           <div
             class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().liquidez"
+            [style.width.%]="objetivos()[cat.key] || 0"
           ></div>
         </div>
       </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Cuentas Remuneradas - Objetivo (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          [(ngModel)]="objetivosLocal.cuentasRemuneradas"
-          (ngModelChange)="onObjetivosChange()"
-          class="input-field"
-        />
-        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
-          <div
-            class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().cuentasRemuneradas"
-          ></div>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Renta Variable - Objetivo (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          [(ngModel)]="objetivosLocal.rentaVariable"
-          (ngModelChange)="onObjetivosChange()"
-          class="input-field"
-        />
-        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
-          <div
-            class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().rentaVariable"
-          ></div>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Renta Fija - Objetivo (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          [(ngModel)]="objetivosLocal.rentaFija"
-          (ngModelChange)="onObjetivosChange()"
-          class="input-field"
-        />
-        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
-          <div
-            class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().rentaFija"
-          ></div>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Criptomonedas - Objetivo (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          [(ngModel)]="objetivosLocal.cryptos"
-          (ngModelChange)="onObjetivosChange()"
-          class="input-field"
-        />
-        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
-          <div
-            class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().cryptos"
-          ></div>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Fondos Indexados - Objetivo (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          [(ngModel)]="objetivosLocal.fondosIndexados"
-          (ngModelChange)="onObjetivosChange()"
-          class="input-field"
-        />
-        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
-          <div
-            class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-            [style.width.%]="objetivos().fondosIndexados"
-          ></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recomendaciones -->
-    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-      <h4 class="font-medium text-blue-900 mb-2">Recomendaciones de Expertos:</h4>
-      <ul class="text-sm text-blue-800 space-y-1">
-        <li>• Mantén 3-6 meses de gastos en liquidez (15-20%)</li>
-        <li>• Máximo 5-10% en criptomonedas para diversificación</li>
-        <li>• Fondos indexados: base sólida del 20-40% del portfolio</li>
-        <li>• Diversifica entre renta variable (30-50%) y fija (10-20%) según tu edad</li>
-        <li>• Cuentas remuneradas: 15-25% para emergencias con rentabilidad</li>
-      </ul>
+      }
     </div>
 
     <div class="mt-4 p-4 bg-green-50 rounded-lg">
       <p class="text-sm text-green-800">
-        <strong>Total objetivo:</strong> {{ totalObjetivos() }}% @if (totalObjetivos() !== 100) {
-        <span class="text-orange-600 ml-2"> ⚠️ Los objetivos deben sumar 100% </span>
-        } @else {
+        <strong>Total objetivo:</strong> {{ totalObjetivos() }}% @if (totalObjetivos() === 100) {
         <span class="text-green-600 ml-2">✅ Objetivos balanceados</span>
+        } @else {
+        <span class="text-orange-600 ml-2"> ⚠️ Los objetivos deben sumar 100% </span>
         }
       </p>
     </div>
@@ -153,14 +67,14 @@
     <h3 class="text-xl font-bold mb-4 text-gray-800">Actual vs Objetivo</h3>
 
     <div class="space-y-6">
-      @for (categoria of categorias; track categoria.key) {
+      @for (categoria of categorias; track categoria) {
       <div>
         <div class="flex justify-between items-center mb-3">
           <span class="text-sm font-medium text-gray-700">{{ categoria.nombre }}</span>
           <div class="text-right">
-            <span class="text-sm font-medium" [class]="getDiferenciaColor(categoria.key)">
-              {{ porcentajes()[categoria.key] | number : '1.1-1' }}% /
-              {{ objetivos()[categoria.key] }}%
+            <span class="text-sm font-medium" [ngClass]="getDiferenciaColor(categoria.key)">
+              <!-- {{ porcentajes()[categoria.key] || 0 | number : '1.1-1' }}% / -->
+              {{ objetivos()[categoria.key] || 0 }}%
             </span>
             <div class="text-xs text-gray-500">
               Diferencia: {{ getDiferencia(categoria.key) | number : '1.1-1' }}%
@@ -168,19 +82,19 @@
           </div>
         </div>
 
-        <!-- Barras de comparación -->
         <div class="space-y-2">
-          <!-- Barra Actual -->
           <div class="relative">
             <div class="w-full bg-gray-200 rounded-full h-4">
-              <div
+              <!-- <div
                 class="bg-blue-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                [style.width.%]="Math.min(porcentajes()[categoria.key], 100)"
+                [style.width.%]="Math.min(porcentajes()[categoria.key] || 0, 100)"
               >
-                @if (porcentajes()[categoria.key] > 5) {
-                <span class="text-xs text-white font-medium">Actual</span>
-                }
-              </div>
+                <span
+                  *ngIf="(porcentajes()[categoria.key] || 0) > 5"
+                  class="text-xs text-white font-medium"
+                  >Actual</span
+                >
+              </div> -->
             </div>
           </div>
 
@@ -189,26 +103,26 @@
             <div class="w-full bg-gray-200 rounded-full h-4">
               <div
                 class="bg-green-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                [style.width.%]="objetivos()[categoria.key]"
+                [style.width.%]="objetivos()[categoria.key] || 0"
               >
-                @if (objetivos()[categoria.key] > 5) {
-                <span class="text-xs text-white font-medium">Objetivo</span>
-                }
+                <span
+                  *ngIf="(objetivos()[categoria.key] || 0) > 5"
+                  class="text-xs text-white font-medium"
+                  >Objetivo</span
+                >
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Indicador de estado -->
         <div class="mt-2 flex items-center space-x-2">
-          <div class="w-3 h-3 rounded-full" [class]="getEstadoColor(categoria.key)"></div>
+          <div class="w-3 h-3 rounded-full" [ngClass]="getEstadoColor(categoria.key)"></div>
           <span class="text-xs text-gray-600">{{ getEstadoTexto(categoria.key) }}</span>
         </div>
       </div>
       }
     </div>
 
-    <!-- Resumen de desviaciones -->
     <div class="mt-6 p-4 bg-gray-50 rounded-lg">
       <h4 class="font-medium text-gray-800 mb-3">Resumen de Desviaciones</h4>
       <div class="grid grid-cols-3 gap-4 text-center">
@@ -227,16 +141,15 @@
       </div>
     </div>
 
-    <!-- Recomendaciones personalizadas -->
     <div class="mt-4">
       <h4 class="font-medium text-gray-800 mb-2">Recomendaciones Personalizadas:</h4>
       <div class="text-sm text-gray-700 space-y-1">
-        @for (recomendacion of getRecomendacionesPersonalizadas(); track $index) {
-        <div class="flex items-start space-x-2">
-          <span class="text-blue-500 mt-1">•</span>
-          <span>{{ recomendacion }}</span>
+        <div *ngFor="let recomendacion of getRecomendacionesPersonalizadas(); let i = index">
+          <div class="flex items-start space-x-2">
+            <span class="text-blue-500 mt-1">•</span>
+            <span>{{ recomendacion }}</span>
+          </div>
         </div>
-        }
       </div>
     </div>
   </div>

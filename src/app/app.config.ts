@@ -1,5 +1,7 @@
 import {
   ApplicationConfig,
+  DEFAULT_CURRENCY_CODE,
+  LOCALE_ID,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -16,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideCharts(withDefaultRegisterables()),
     provideHttpClient(),
-    // { provide: LOCALE_ID, useValue: 'es' },
+    { provide: LOCALE_ID, useValue: 'es' },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'EUR' },
   ],
 };

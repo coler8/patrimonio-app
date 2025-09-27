@@ -32,6 +32,9 @@ export class AppComponent implements OnInit {
   constructor(private patrimonioService: PatrimonioService) {}
 
   ngOnInit() {
-    this.patrimonioService.cargarDeLocalStorage();
+    this.patrimonioService.cargarDatosDesdeJSON().subscribe({
+      next: (data) => console.log('Datos cargados', data),
+      error: (err) => console.error('Error cargando JSON', err),
+    });
   }
 }

@@ -1,0 +1,215 @@
+{
+  "objetivos": {
+    "liquidez": 10,
+    "cuentasRemuneradas": 60,
+    "cryptos": 10,
+    "fondosIndexados": 20
+  },
+  "historial": [
+    {
+      "fecha": "enero",
+      "ingresos": 1491.38,
+      "gastos": 863.78,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "febrero",
+      "ingresos": 1439.79,
+      "gastos": 915.01,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "marzo",
+      "ingresos": 1461.16,
+      "gastos": 906,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "abril",
+      "ingresos": 1455,
+      "gastos": 994,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "mayo",
+      "ingresos": 1513,
+      "gastos": 977,
+      "sabadell": 26000,
+      "myInvestor": 750,
+      "fondosIndexados": 3300,
+      "tradeRepublic": 49000,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 6594,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "junio",
+      "ingresos": 4736,
+      "gastos": 695,
+      "sabadell": 18100,
+      "myInvestor": 11100,
+      "fondosIndexados": 4000,
+      "tradeRepublic": 49060,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 6336,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "julio",
+      "ingresos": 2587,
+      "gastos": 1275,
+      "sabadell": 15370,
+      "myInvestor": 11425,
+      "fondosIndexados": 4800,
+      "tradeRepublic": 51130,
+      "zen": 200,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 7160,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "agosto",
+      "ingresos": 2579,
+      "gastos": 1138,
+      "sabadell": 14010,
+      "myInvestor": 10844,
+      "fondosIndexados": 5400,
+      "tradeRepublic": 54000,
+      "zen": 400,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 7143,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "septiembre",
+      "ingresos": 0,
+      "gastos": 0,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "octubre",
+      "ingresos": 0,
+      "gastos": 0,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "noviembre",
+      "ingresos": 0,
+      "gastos": 0,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    },
+    {
+      "fecha": "diciembre",
+      "ingresos": 0,
+      "gastos": 0,
+      "sabadell": 0,
+      "myInvestor": 0,
+      "fondosIndexados": 0,
+      "tradeRepublic": 0,
+      "zen": 0,
+      "cryptos": {
+        "binance": 0,
+        "bitget": 0,
+        "quantfury": 0,
+        "simplefx": 0,
+        "coinbase": 0
+      }
+    }
+  ],
+  "rentabilidadMensual": 0
+}

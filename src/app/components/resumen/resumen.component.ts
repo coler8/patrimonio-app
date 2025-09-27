@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PatrimonioService } from '../../@core/services/patrimonio.service';
 
@@ -9,7 +9,7 @@ import { PatrimonioService } from '../../@core/services/patrimonio.service';
   templateUrl: './resumen.component.html',
 })
 export class ResumenComponent {
-  private patrimonioService = inject(PatrimonioService);
+  patrimonioService = inject(PatrimonioService);
   resumen = this.patrimonioService.resumen;
 
   constructor() {}

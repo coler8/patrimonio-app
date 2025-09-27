@@ -1,203 +1,323 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import {
   DistribucionPatrimonio,
   ObjetivosPatrimonio,
   HistorialMensual,
   ResumenPatrimonio,
-  PorcentajesDistribucion,
+  CryptoDetail,
 } from '../models/patrimonio.model';
+import { HttpClient } from '@angular/common/http';
+import { MESES } from '../constants/meses.constants';
+
+const INFLACION = 2.5;
 
 @Injectable({
   providedIn: 'root',
 })
 export class PatrimonioService {
-  // Signals para manejo de estado reactivo
-  private _distribucion = signal<DistribucionPatrimonio>({
-    liquidez: 5000,
-    cuentasRemuneradas: 15000,
-    rentaVariable: 25000,
-    rentaFija: 10000,
-    cryptos: 3000,
-    fondosIndexados: 20000,
-  });
+  private http = inject(HttpClient);
 
   private _objetivos = signal<ObjetivosPatrimonio>({
-    liquidez: 15,
-    cuentasRemuneradas: 20,
-    rentaVariable: 30,
-    rentaFija: 15,
-    cryptos: 5,
-    fondosIndexados: 15,
+    liquidez: 0,
+    cuentasRemuneradas: 0,
+    cryptos: 0,
+    fondosIndexados: 0,
   });
 
-  private _historial = signal<HistorialMensual[]>([
-    {
-      fecha: new Date(2024, 6, 1),
-      distribucion: {
-        liquidez: 4500,
-        cuentasRemuneradas: 12000,
-        rentaVariable: 20000,
-        rentaFija: 8000,
-        cryptos: 2500,
-        fondosIndexados: 15000,
-      },
-      total: 62000,
-      rentabilidad: 7.2,
-    },
-    {
-      fecha: new Date(2024, 7, 1),
-      distribucion: {
-        liquidez: 4800,
-        cuentasRemuneradas: 13500,
-        rentaVariable: 22000,
-        rentaFija: 9000,
-        cryptos: 2800,
-        fondosIndexados: 17000,
-      },
-      total: 69100,
-      rentabilidad: 8.1,
-    },
-    {
-      fecha: new Date(2024, 8, 1),
-      distribucion: {
-        liquidez: 5000,
-        cuentasRemuneradas: 15000,
-        rentaVariable: 25000,
-        rentaFija: 10000,
-        cryptos: 3000,
-        fondosIndexados: 20000,
-      },
-      total: 78000,
-      rentabilidad: 8.5,
-    },
-  ]);
+  private _historial = signal<HistorialMensual[]>([]);
+  private _ingresosMensuales = signal<number>(0);
+  private _rentabilidadMensual = signal<number>(0);
 
-  private _ingresosMensuales = signal(4500);
-  private _rentabilidadTotal = signal(8.5);
+  private _datosJSON: {
+    objetivos: ObjetivosPatrimonio;
+    historial: HistorialMensual[];
+    ingresosMensuales: number;
+    rentabilidadMensual: number;
+  } | null = null;
 
-  // Computed signals
-  readonly distribucion = this._distribucion.asReadonly();
   readonly objetivos = this._objetivos.asReadonly();
   readonly historial = this._historial.asReadonly();
-  readonly ingresosMensuales = this._ingresosMensuales.asReadonly();
-  readonly rentabilidadTotal = this._rentabilidadTotal.asReadonly();
+  readonly rentabilidadMensual = this._rentabilidadMensual.asReadonly();
+
+  readonly ingresosMensuales = computed(() => {
+    const historial = this._historial();
+    if (!historial.length) return 0;
+
+    // obtenemos el índice del mes actual
+    const mesActual = this.obtenerMesActual();
+    const indexMesActual = historial.findIndex((h) => h.fecha === mesActual);
+
+    // mes anterior
+    const indexAnterior = indexMesActual > 0 ? indexMesActual - 1 : historial.length - 1;
+    const registroAnterior = historial[indexAnterior];
+    if (!registroAnterior) return 0;
+
+    return registroAnterior.ingresos ?? 0;
+  });
+
+  readonly gastosMensuales = computed(() => {
+    const historial = this._historial();
+    if (!historial.length) return 0;
+
+    // obtenemos el índice del mes actual
+    const mesActual = this.obtenerMesActual();
+    const indexMesActual = historial.findIndex((h) => h.fecha === mesActual);
+
+    // mes anterior
+    const indexAnterior = indexMesActual > 0 ? indexMesActual - 1 : historial.length - 1;
+    const registroAnterior = historial[indexAnterior];
+    if (!registroAnterior) return 0;
+
+    return registroAnterior.gastos ?? 0;
+  });
+
+  // Distribución calculada dinámicamente según el mes actual
+  readonly distribucion = computed<DistribucionPatrimonio>(() => {
+    const historial = this._historial();
+    const mesActual = this.obtenerMesActual();
+    const indexMesActual = historial.findIndex((h) => h.fecha === mesActual);
+
+    const registro = indexMesActual > 0 ? historial[indexMesActual - 1] : null;
+
+    if (!registro) {
+      return {
+        liquidez: 0,
+        cuentasRemuneradas: 0,
+        cryptos: { binance: 0, bitget: 0, quantfury: 0, simplefx: 0, coinbase: 0 },
+        fondosIndexados: 0,
+        tradeRepublic: 0,
+        myInvestor: 0,
+      };
+    }
+
+    return {
+      liquidez: registro.sabadell ?? 0,
+      cuentasRemuneradas: registro.myInvestor ?? 0,
+      cryptos: { ...registro.cryptos },
+      fondosIndexados: registro.fondosIndexados ?? 0,
+      tradeRepublic: registro.tradeRepublic ?? 0,
+      myInvestor: registro.myInvestor ?? 0,
+    };
+  });
+
+  // Porcentajes por categoría (suma ~100). Devuelve 0 si total = 0
+  readonly porcentajes = computed(() => {
+    const dist = this.distribucion();
+    const total =
+      dist.liquidez +
+      dist.fondosIndexados +
+      dist.tradeRepublic +
+      dist.myInvestor +
+      Object.values(dist.cryptos).reduce((sum, v) => sum + v, 0);
+
+    if (!total) {
+      return {
+        liquidez: 0,
+        cuentasRemuneradas: 0,
+        cryptos: { binance: 0, bitget: 0, quantfury: 0, simplefx: 0, coinbase: 0 },
+        fondosIndexados: 0,
+        tradeRepublic: 0,
+        myInvestor: 0,
+      };
+    }
+
+    return {
+      liquidez: (dist.liquidez / total) * 100,
+      cuentasRemuneradas: (dist.tradeRepublic + dist.myInvestor / total) * 100,
+      cryptos: {
+        binance: (dist.cryptos.binance / total) * 100,
+        bitget: (dist.cryptos.bitget / total) * 100,
+        quantfury: (dist.cryptos.quantfury / total) * 100,
+        simplefx: (dist.cryptos.simplefx / total) * 100,
+        coinbase: (dist.cryptos.coinbase / total) * 100,
+      } as CryptoDetail,
+      fondosIndexados: (dist.fondosIndexados / total) * 100,
+      tradeRepublic: (dist.tradeRepublic / total) * 100,
+      myInvestor: (dist.myInvestor / total) * 100,
+    };
+  });
 
   readonly patrimonioTotal = computed(() => {
-    const dist = this._distribucion();
-    return Object.values(dist).reduce((sum, value) => sum + value, 0);
+    const dist = this.distribucion();
+    return (
+      dist.liquidez +
+      dist.fondosIndexados +
+      dist.tradeRepublic +
+      dist.myInvestor +
+      Object.values(dist.cryptos).reduce((sum, v) => sum + v, 0)
+    );
   });
 
-  readonly porcentajes = computed((): PorcentajesDistribucion => {
-    const dist = this._distribucion();
-    const total = this.patrimonioTotal();
+  private _mesSeleccionado = signal<string>(MESES[new Date().getMonth()]);
+  private _rentabilidadMesSeleccionado = signal<number>(0);
 
-    return {
-      liquidez: total > 0 ? (dist.liquidez / total) * 100 : 0,
-      cuentasRemuneradas: total > 0 ? (dist.cuentasRemuneradas / total) * 100 : 0,
-      rentaVariable: total > 0 ? (dist.rentaVariable / total) * 100 : 0,
-      rentaFija: total > 0 ? (dist.rentaFija / total) * 100 : 0,
-      cryptos: total > 0 ? (dist.cryptos / total) * 100 : 0,
-      fondosIndexados: total > 0 ? (dist.fondosIndexados / total) * 100 : 0,
-    };
-  });
+  readonly mesSeleccionado = this._mesSeleccionado.asReadonly();
+  readonly rentabilidadMesSeleccionado = this._rentabilidadMesSeleccionado.asReadonly();
 
-  readonly ahorroMensual = computed(() => {
+  readonly ingresosMensualesSeleccionado = computed(() => {
     const historial = this._historial();
-    const totalActual = this.patrimonioTotal();
+    const mesSel = this._mesSeleccionado();
 
-    if (historial.length === 0) return 0;
-
-    const ultimoMes = historial[historial.length - 1];
-    return totalActual - ultimoMes.total;
+    const registro = historial.find((h) => h.fecha.toLowerCase() === mesSel.toLowerCase());
+    return registro?.ingresos ?? 0;
   });
 
-  readonly resumen = computed(
-    (): ResumenPatrimonio => ({
-      total: this.patrimonioTotal(),
-      ingresosMensuales: this._ingresosMensuales(),
-      ahorroMensual: this.ahorroMensual(),
-      rentabilidadTotal: this._rentabilidadTotal(),
-    })
-  );
-
-  // Métodos para actualizar datos
-  actualizarDistribucion(distribucion: DistribucionPatrimonio): void {
-    this._distribucion.set(distribucion);
-  }
-
-  actualizarObjetivos(objetivos: ObjetivosPatrimonio): void {
-    this._objetivos.set(objetivos);
-  }
-
-  actualizarIngresosMensuales(ingresos: number): void {
-    this._ingresosMensuales.set(ingresos);
-  }
-
-  guardarMesActual(): void {
-    const nuevoRegistro: HistorialMensual = {
-      fecha: new Date(),
-      distribucion: { ...this._distribucion() },
-      total: this.patrimonioTotal(),
-      rentabilidad: this._rentabilidadTotal(),
-    };
-
-    this._historial.update((historial) => [...historial, nuevoRegistro]);
-  }
-
-  // Métodos para obtener datos formateados para gráficos
-  getDistribucionParaGrafico() {
-    const dist = this._distribucion();
-    return {
-      labels: Object.keys(dist).map((key) => this.formatearNombreCategoria(key)),
-      values: Object.values(dist),
-      colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'],
-    };
-  }
-
-  getEvolucionParaGrafico() {
+  readonly gastosMensualesSeleccionado = computed(() => {
     const historial = this._historial();
+    const mesSel = this._mesSeleccionado();
+
+    const registro = historial.find((h) => h.fecha.toLowerCase() === mesSel.toLowerCase());
+    return registro?.gastos ?? 0;
+  });
+
+  readonly ahorroMensualSeleccionado = computed(() => {
+    return this.ingresosMensualesSeleccionado() - this.gastosMensualesSeleccionado();
+  });
+
+  readonly resumen = computed<ResumenPatrimonio>(() => this.obtenerResumen());
+
+  constructor() {}
+
+  // ---- MÉTODOS ----
+
+  private obtenerMesActual(): string {
+    return MESES[new Date().getMonth()];
+  }
+
+  obtenerResumen(): ResumenPatrimonio {
+    const historial = this._historial();
+    const mesSel = this._mesSeleccionado();
+
+    const registroSel = historial.find((h) => h.fecha.toLowerCase() === mesSel.toLowerCase());
+
     return {
-      labels: historial.map((h) =>
-        h.fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
-      ),
-      data: historial.map((h) => h.total),
+      total: this.patrimonioTotal(),
+      ingresosMensuales: this.ingresosMensualesSeleccionado(),
+      gastosMensuales: this.gastosMensualesSeleccionado(),
+      ahorroMensual: this.ahorroMensualSeleccionado(),
+      rentabilidadMensual: this._rentabilidadMensual(),
     };
   }
 
-  private formatearNombreCategoria(categoria: string): string {
-    return categoria
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (str) => str.toUpperCase())
-      .trim();
+  actualizarObjetivos(nuevos: ObjetivosPatrimonio) {
+    this._objetivos.set({ ...nuevos });
   }
 
-  // Persistencia local (opcional)
-  guardarEnLocalStorage(): void {
-    const data = {
-      distribucion: this._distribucion(),
+  guardarEnLocalStorage() {
+    const payload = {
       objetivos: this._objetivos(),
-      historial: this._historial(),
+      historial: this._historial().map((h) => ({
+        ...h,
+        fecha: h.fecha,
+      })),
       ingresosMensuales: this._ingresosMensuales(),
-      rentabilidadTotal: this._rentabilidadTotal(),
+      rentabilidadMensual: this._rentabilidadMensual(),
     };
-    localStorage.setItem('patrimonioData', JSON.stringify(data));
+
+    localStorage.setItem('patrimonio', JSON.stringify(payload));
   }
 
-  cargarDeLocalStorage(): void {
-    const data = localStorage.getItem('patrimonioData');
-    if (data) {
-      const parsed = JSON.parse(data);
-      this._distribucion.set(parsed.distribucion);
-      this._objetivos.set(parsed.objetivos);
-      this._historial.set(
-        parsed.historial.map((h: any) => ({
-          ...h,
-          fecha: new Date(h.fecha),
-        }))
-      );
-      this._ingresosMensuales.set(parsed.ingresosMensuales);
-      this._rentabilidadTotal.set(parsed.rentabilidadTotal);
-    }
+  cargarDatosDesdeJSON(): Observable<any> {
+    return this.http.get('assets/datos-patrimonio.json').pipe(
+      tap((data: any) => {
+        this._datosJSON = data;
+
+        if (data.objetivos) {
+          this._objetivos.set({ ...this._objetivos(), ...data.objetivos });
+        }
+        if (Array.isArray(data.historial)) {
+          this._historial.set(
+            data.historial.map((h: any) => ({
+              ...h,
+              fecha: typeof h.fecha === 'string' ? h.fecha : new Date(h.fecha),
+            }))
+          );
+        }
+        if (typeof data.rentabilidadMensual === 'number') {
+          this._rentabilidadMensual.set(data.rentabilidadMensual);
+        }
+      })
+    );
+  }
+
+  actualizarDistribucion(nuevaDistribucion: DistribucionPatrimonio): void {
+    const historial = this._historial();
+    if (!historial.length) return;
+
+    const mesActual = this.obtenerMesActual();
+    const indexActual = historial.findIndex((h) => h.fecha === mesActual);
+
+    const indexAnterior = indexActual > 0 ? indexActual - 1 : historial.length - 1;
+    const registroAnterior = historial[indexAnterior];
+    if (!registroAnterior) return;
+
+    const total =
+      nuevaDistribucion.liquidez +
+      nuevaDistribucion.fondosIndexados +
+      nuevaDistribucion.tradeRepublic +
+      nuevaDistribucion.myInvestor +
+      Object.values(nuevaDistribucion.cryptos).reduce((sum, v) => sum + v, 0);
+
+    this._historial.update((prev) =>
+      prev.map((h, i) =>
+        i === indexAnterior
+          ? {
+              ...h,
+              sabadell: nuevaDistribucion.liquidez,
+              cuentasRemuneradas: nuevaDistribucion.myInvestor + nuevaDistribucion.tradeRepublic,
+              myInvestor: nuevaDistribucion.myInvestor,
+              tradeRepublic: nuevaDistribucion.tradeRepublic,
+              fondosIndexados: nuevaDistribucion.fondosIndexados,
+              crypto: Object.values(nuevaDistribucion.cryptos).reduce((a, b) => a + b, 0),
+              distribucion: nuevaDistribucion,
+              total,
+            }
+          : h
+      )
+    );
+  }
+
+  sumarCryptos(cryptos?: CryptoDetail | null): number {
+    if (!cryptos) return 0;
+    return Object.values(cryptos).reduce((a, b) => a + (b || 0), 0);
+  }
+
+  totalPorcentajeCryptos(): number {
+    const cryptos = this.porcentajes().cryptos;
+    return Object.values(cryptos).reduce((sum, v) => sum + v, 0);
+  }
+
+  calcularRentabilidadMes(mes: string): number {
+    const historial = this._historial();
+    const index = historial.findIndex((h) => h.fecha.toLowerCase() === mes.toLowerCase());
+    if (index <= 0) return 0; // primer mes o no encontrado
+
+    const actual = historial[index];
+    const anterior = historial[index - 1];
+
+    const totalActual =
+      (actual.sabadell || 0) +
+      (actual.tradeRepublic || 0) +
+      (actual.myInvestor || 0) +
+      (actual.fondosIndexados || 0) +
+      this.sumarCryptos(actual.cryptos);
+
+    const totalAnterior =
+      (anterior.sabadell || 0) +
+      (anterior.tradeRepublic || 0) +
+      (anterior.myInvestor || 0) +
+      (anterior.fondosIndexados || 0) +
+      this.sumarCryptos(anterior.cryptos);
+
+    if (totalAnterior === 0) return 0;
+
+    return ((totalActual - totalAnterior) / totalAnterior) * 100;
+  }
+
+  seleccionarMes(mes: string) {
+    this._mesSeleccionado.set(mes);
+    const rentabilidad = this.calcularRentabilidadMes(mes);
+    this._rentabilidadMesSeleccionado.set(rentabilidad);
   }
 }

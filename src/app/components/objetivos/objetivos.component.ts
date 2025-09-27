@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatrimonioService } from '../../@core/services/patrimonio.service';
@@ -10,25 +10,33 @@ import { ObjetivosKeys, ObjetivosPatrimonio } from '../../@core/models/patrimoni
   imports: [CommonModule, FormsModule],
   templateUrl: './objetivos.component.html',
 })
-export class ObjetivosComponent {
+export class ObjetivosComponent implements OnInit {
   private patrimonioService = inject(PatrimonioService);
 
-  objetivosLocal!: ObjetivosPatrimonio;
+  // referencias a las señales del servicio
+  objetivos = this.patrimonioService.objetivos; // Signal<ObjetivosPatrimonio>
+  porcentajes = this.patrimonioService.porcentajes; // Signal<DistribucionPatrimonio>
 
-  objetivos = this.patrimonioService.objetivos;
-  porcentajes = this.patrimonioService.porcentajes;
+  // copia local para bind con ngModel (edición)
+  objetivosLocal!: ObjetivosPatrimonio;
 
   categorias: { key: ObjetivosKeys; nombre: string }[] = [
     { key: 'liquidez', nombre: 'Liquidez' },
     { key: 'cuentasRemuneradas', nombre: 'Cuentas Remuneradas' },
-    { key: 'rentaVariable', nombre: 'Renta Variable' },
-    { key: 'rentaFija', nombre: 'Renta Fija' },
     { key: 'cryptos', nombre: 'Criptomonedas' },
     { key: 'fondosIndexados', nombre: 'Fondos Indexados' },
   ];
+
+  // total de objetivos (suma porcentajes objetivo)
   totalObjetivos = computed(() => {
     const obj = this.objetivos();
-    return Object.values(obj).reduce((sum, value) => sum + value, 0);
+    // suma defensiva (por si algún campo es undefined)
+    return (
+      (obj?.liquidez ?? 0) +
+      (obj?.cuentasRemuneradas ?? 0) +
+      (obj?.cryptos ?? 0) +
+      (obj?.fondosIndexados ?? 0)
+    );
   });
 
   categoriasEnObjetivo = computed(() => {
@@ -43,34 +51,70 @@ export class ObjetivosComponent {
     return this.categorias.filter((cat) => this.getDiferencia(cat.key) < -2).length;
   });
 
-  constructor() {
-    this.objetivosLocal = { ...this.objetivos() };
+  // Exponer Math al template si lo necesitas
+  Math = Math;
+
+  ngOnInit(): void {
+    // inicializar la copia local a partir del servicio (defensivamente)
+    const obj = this.objetivos();
+    this.objetivosLocal = {
+      liquidez: obj?.liquidez ?? 0,
+      cuentasRemuneradas: obj?.cuentasRemuneradas ?? 0,
+      cryptos: obj?.cryptos ?? 0,
+      fondosIndexados: obj?.fondosIndexados ?? 0,
+    };
   }
 
   onObjetivosChange() {
-    this.patrimonioService.actualizarObjetivos(this.objetivosLocal);
+    // asegurar límites 0-100 y no dejar NaN
+    const clean: ObjetivosPatrimonio = {
+      liquidez: Number(this.objetivosLocal.liquidez) || 0,
+      cuentasRemuneradas: Number(this.objetivosLocal.cuentasRemuneradas) || 0,
+      cryptos: Number(this.objetivosLocal.cryptos) || 0,
+      fondosIndexados: Number(this.objetivosLocal.fondosIndexados) || 0,
+    };
+    // opcional: forzar entre 0 y 100
+    Object.keys(clean).forEach((k) => {
+      // @ts-ignore
+      if (clean[k] < 0) clean[k] = 0;
+      // @ts-ignore
+      if (clean[k] > 100) clean[k] = 100;
+    });
+
+    this.patrimonioService.actualizarObjetivos(clean);
     this.patrimonioService.guardarEnLocalStorage();
   }
 
-  getDiferencia(categoria: keyof ObjetivosPatrimonio): number {
-    return this.porcentajes()[categoria] - this.objetivos()[categoria];
+  getDiferencia(categoria: ObjetivosKeys): number {
+    const porcVal = this.porcentajes()[categoria];
+    let porc: number;
+
+    if (categoria === 'cryptos' && typeof porcVal === 'object') {
+      // suma todos los valores del objeto
+      porc = Object.values(porcVal).reduce((sum, v) => sum + v, 0);
+    } else {
+      porc = (porcVal as number) ?? 0;
+    }
+
+    const obj = this.objetivos()[categoria] ?? 0;
+    return porc - obj;
   }
 
-  getDiferenciaColor(categoria: keyof ObjetivosPatrimonio): string {
+  getDiferenciaColor(categoria: ObjetivosKeys): string {
     const diff = Math.abs(this.getDiferencia(categoria));
     if (diff <= 2) return 'text-green-600';
     if (diff <= 5) return 'text-orange-600';
     return 'text-red-600';
   }
 
-  getEstadoColor(categoria: keyof ObjetivosPatrimonio): string {
+  getEstadoColor(categoria: ObjetivosKeys): string {
     const diff = this.getDiferencia(categoria);
     if (Math.abs(diff) <= 2) return 'bg-green-400';
     if (diff > 2) return 'bg-orange-400';
     return 'bg-red-400';
   }
 
-  getEstadoTexto(categoria: keyof ObjetivosPatrimonio): string {
+  getEstadoTexto(categoria: ObjetivosKeys): string {
     const diff = this.getDiferencia(categoria);
     if (Math.abs(diff) <= 2) return 'En objetivo (±2%)';
     if (diff > 2) return `Sobrepasado (+${diff.toFixed(1)}%)`;
@@ -80,7 +124,6 @@ export class ObjetivosComponent {
   getRecomendacionesPersonalizadas(): string[] {
     const recomendaciones: string[] = [];
 
-    // Análisis de liquidez
     const diffLiquidez = this.getDiferencia('liquidez');
     if (diffLiquidez < -5) {
       recomendaciones.push(
@@ -88,31 +131,21 @@ export class ObjetivosComponent {
       );
     } else if (diffLiquidez > 10) {
       recomendaciones.push(
-        'Tienes demasiado dinero en liquidez, considera invertir parte en activos más rentables'
+        'Tienes demasiado dinero en liquidez; considera invertir parte en activos más rentables'
       );
     }
 
-    // Análisis de criptomonedas
     const diffCryptos = this.getDiferencia('cryptos');
     if (diffCryptos > 5) {
       recomendaciones.push(
-        'El porcentaje en criptomonedas es alto, considera reducirlo para menor volatilidad'
+        'El porcentaje en criptomonedas es alto; considera reducirlo para menor volatilidad'
       );
     }
 
-    // Análisis de renta variable
-    const diffRentaVariable = this.getDiferencia('rentaVariable');
-    if (diffRentaVariable < -10) {
-      recomendaciones.push(
-        'Considera aumentar tu exposición a renta variable para mayor potencial de crecimiento'
-      );
-    }
-
-    // Análisis de fondos indexados
     const diffFondos = this.getDiferencia('fondosIndexados');
     if (diffFondos < -5) {
       recomendaciones.push(
-        'Los fondos indexados ofrecen diversificación a bajo costo, considera aumentar su peso'
+        'Los fondos indexados ofrecen diversificación a bajo costo; considera aumentar su peso'
       );
     }
 
@@ -122,7 +155,4 @@ export class ObjetivosComponent {
 
     return recomendaciones;
   }
-
-  // Método auxiliar para Math en el template
-  Math = Math;
 }
