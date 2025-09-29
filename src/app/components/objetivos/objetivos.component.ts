@@ -12,7 +12,7 @@ import { ObjetivosKeys, ObjetivosPatrimonio } from '../../@core/models/patrimoni
 })
 export class ObjetivosComponent implements OnInit {
   private patrimonioService = inject(PatrimonioService);
-
+  resumen = this.patrimonioService.resumen;
   // referencias a las señales del servicio
   objetivos = this.patrimonioService.objetivos; // Signal<ObjetivosPatrimonio>
   porcentajes = this.patrimonioService.porcentajes; // Signal<DistribucionPatrimonio>

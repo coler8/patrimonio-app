@@ -1,5 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, input, Input } from '@angular/core';
+import { HistorialMensual } from '../../@core/models/patrimonio.model';
+import { MESES } from '../../@core/constants/meses.constants';
 
 interface Columna {
   key: string;
@@ -12,10 +14,9 @@ interface Columna {
   selector: 'app-historial-detallado',
   templateUrl: './historial-detallado.html',
   standalone: true,
-  imports: [DecimalPipe, DatePipe],
 })
 export class HistorialDetalladoComponent {
-  @Input() historial: any[] = [];
+  historial = input<HistorialMensual[]>();
 
   // Configuración dinámica de columnas
   columnas: Columna[] = [
@@ -46,8 +47,11 @@ export class HistorialDetalladoComponent {
   ];
 
   getCambioMensual(index: number): number {
-    if (index + 1 >= this.historial.length) return 0;
-    return this.historial[index].total - this.historial[index + 1].total;
+    const data = this.historial() ?? [];
+    if (index + 1 >= data.length) return 0;
+    const actual = data[index]?.total ?? 0;
+    const anterior = data[index + 1]?.total ?? 0;
+    return actual - anterior;
   }
 
   getCambioColor(index: number): string {
@@ -56,8 +60,9 @@ export class HistorialDetalladoComponent {
   }
 
   getCrecimientoMensual(index: number): number {
-    const actual = this.historial[index].total;
-    const anterior = this.historial[index + 1]?.total || actual;
+    const data = this.historial() ?? [];
+    const actual = data[index]?.total ?? 0;
+    const anterior = data[index + 1]?.total ?? actual;
     if (anterior === 0) return 0;
     return ((actual - anterior) / anterior) * 100;
   }
@@ -68,8 +73,9 @@ export class HistorialDetalladoComponent {
   }
 
   exportarHistorial() {
+    const data = this.historial() ?? [];
     const headers = this.columnas.map((c) => c.label);
-    const rows = this.historial.map((mes, i) =>
+    const rows = data.map((mes, i) =>
       this.columnas.map((c) => {
         switch (c.key) {
           case 'cambio':
@@ -79,9 +85,7 @@ export class HistorialDetalladoComponent {
           case 'fecha':
             return c.format ? c.format(mes.fecha) : mes.fecha;
           default:
-            return c.format
-              ? c.format(mes.distribucion?.[c.key] ?? mes[c.key])
-              : mes.distribucion?.[c.key] ?? mes[c.key];
+            return mes.distribucion;
         }
       })
     );

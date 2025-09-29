@@ -1,9 +1,12 @@
 export interface DistribucionPatrimonio {
   liquidez: number;
+  sabadell?: number;
+  zen?: number;
   fondosIndexados: number;
-  tradeRepublic: number;
-  myInvestor: number;
+  tradeRepublic?: number;
+  myInvestor?: number;
   cryptos: CryptoDetail;
+  cuentasRemuneradas: number;
 }
 
 export interface ObjetivosPatrimonio {
@@ -19,6 +22,7 @@ export interface HistorialMensual {
   gastos: number;
 
   // Distribución en cuentas
+  liquidez?: number;
   sabadell: number;
   myInvestor: number;
   fondosIndexados: number;
@@ -39,7 +43,8 @@ export interface ResumenPatrimonio {
   ingresosMensuales: number;
   gastosMensuales: number;
   ahorroMensual: number;
-  rentabilidadMensual: number;
+  rentabilidadMensualSeleccionado: number;
+  rentabilidadAnualizada: number;
 }
 
 export type PorcentajesDistribucion = Record<keyof ObjetivosPatrimonio, number>;

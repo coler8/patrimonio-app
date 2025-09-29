@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
   <div class="bg-white rounded-lg card-shadow p-6 border-l-4 border-primary">
-    <h3 class="text-sm font-medium text-gray-500 mb-1">Patrimonio Total</h3>
+    <h3 class="text-sm font-medium text-gray-500 mb-1">Patrimonio Total Mensual</h3>
     <p class="text-3xl font-bold text-gray-800">{{ resumen().total | number : '1.0-0' }}€</p>
   </div>
 
@@ -52,11 +52,22 @@
     <h3 class="text-sm font-medium text-gray-500 mb-1">Rentabilidad Mes Seleccionado</h3>
     <p
       class="text-2xl font-bold"
-      [class.text-green-600]="patrimonioService.rentabilidadMesSeleccionado() >= 0"
-      [class.text-red-600]="patrimonioService.rentabilidadMesSeleccionado() < 0"
+      [class.text-green-600]="resumen().rentabilidadMensualSeleccionado >= 0"
+      [class.text-red-600]="resumen().rentabilidadMensualSeleccionado < 0"
     >
-      {{ patrimonioService.rentabilidadMesSeleccionado() >= 0 ? '+' : '' }}
-      {{ patrimonioService.rentabilidadMesSeleccionado() | number : '1.1-1' }}%
+      {{ resumen().rentabilidadMensualSeleccionado >= 0 ? '+' : '' }}
+      {{ resumen().rentabilidadMensualSeleccionado | number : '1.1-1' }}%
+    </p>
+
+    <h3 class="text-sm font-medium text-gray-500 mb-1">
+      Rentabilidad anualizada (inflación: 2.5%)
+    </h3>
+    <p
+      [class.text-green-600]="resumen().rentabilidadAnualizada >= 2.5"
+      [class.text-red-600]="resumen().rentabilidadAnualizada < 2.5"
+    >
+      {{ resumen().rentabilidadAnualizada >= 2.5 ? '+' : '' }}
+      {{ resumen().rentabilidadAnualizada | number : '1.2-2' }}%
     </p>
   </div>
 </div>

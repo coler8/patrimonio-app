@@ -2,12 +2,34 @@
   <div class="p-4 bg-blue-50 rounded-lg">
     <div class="flex flex-col md:flex-row gap-6">
       <div class="flex-1">
-        <h4 class="font-medium text-blue-900 mb-2">Reparticion mensual a invertir:</h4>
+        <h4 class="font-medium text-blue-900 mb-2">Reparticion mensual inversiones:</h4>
         <ul class="text-sm text-blue-800 space-y-1">
           <li>• Cuenta remunerada: 850 €</li>
           <li>• MSCI World: 500 €</li>
           <li>• Emerging Markets: 250 €</li>
           <li>• Criptos: 100 €</li>
+        </ul>
+      </div>
+      <div class="flex-1">
+        <h4 class="font-medium text-blue-900 mb-2">
+          Reparticion Nomina: {{ resumen().ingresosMensuales | number : '1.0-0' }} €
+        </h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>
+            • Cuenta remunerada / Fondo de Emergencia (10%):
+            {{ resumen().ingresosMensuales * 0.1 | number : '1.0-0' }} €
+          </li>
+          <li>
+            • Inversión fondos indexados (30%):
+            {{ resumen().ingresosMensuales * 0.3 | number : '1.0-0' }} €
+          </li>
+          <li>
+            • Inversión criptos (10%): {{ resumen().ingresosMensuales * 0.1 | number : '1.0-0' }} €
+          </li>
+          <li>
+            • Gastos para Vivir (40%): {{ resumen().ingresosMensuales * 0.4 | number : '1.0-0' }} €
+          </li>
+          <li>• Disfrutar (10%): {{ resumen().ingresosMensuales * 0.1 | number : '1.0-0' }} €</li>
         </ul>
       </div>
 
