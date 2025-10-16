@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import {
   DistribucionPatrimonio,
   ObjetivosPatrimonio,
@@ -9,6 +9,7 @@ import {
 } from '../models/patrimonio.model';
 import { HttpClient } from '@angular/common/http';
 import { MESES } from '../constants/meses.constants';
+import { PatrimonioApiService } from './patrimonio-api.service';
 
 const INFLACION = 2.5;
 
@@ -17,6 +18,7 @@ const INFLACION = 2.5;
 })
 export class PatrimonioService {
   private http = inject(HttpClient);
+  private patrimonioApiService = inject(PatrimonioApiService);
 
   private _objetivos = signal<ObjetivosPatrimonio>({
     liquidez: 0,
@@ -268,22 +270,26 @@ export class PatrimonioService {
     localStorage.setItem('patrimonio', JSON.stringify(payload));
   }
 
-  cargarDatosDesdeJSON(): Observable<any> {
-    return this.http.get('assets/datos-patrimonio.json').pipe(
+  cargarPatrimonio(): Observable<any> {
+    return this.patrimonioApiService.getPatrimonio().pipe(
       tap((data: any) => {
-        this._datosJSON = data;
+        console.log('✅ Datos cargados desde JSONBin');
+        this._procesarDatos(data);
+      }),
+      catchError((error) => {
+        console.warn('⚠️ Error al cargar desde API, usando JSON local:', error);
 
-        if (data.objetivos) {
-          this._objetivos.set({ ...this._objetivos(), ...data.objetivos });
-        }
-        if (Array.isArray(data.historial)) {
-          this._historial.set(
-            data.historial.map((h: any) => ({
-              ...h,
-              fecha: typeof h.fecha === 'string' ? h.fecha : new Date(h.fecha),
-            }))
-          );
-        }
+        // fallback al JSON local
+        return this.http.get('assets/datos-patrimonio.json').pipe(
+          tap((data: any) => {
+            console.log('📂 Datos cargados desde assets/datos-patrimonio.json');
+            this._procesarDatos(data);
+          }),
+          catchError((localErr) => {
+            console.error('❌ Error también al cargar JSON local:', localErr);
+            return of(null);
+          })
+        );
       })
     );
   }
@@ -361,5 +367,22 @@ export class PatrimonioService {
 
   seleccionarMes(mes: string) {
     this._mesSeleccionado.set(mes);
+  }
+
+  private _procesarDatos(data: any): void {
+    this._datosJSON = data;
+
+    if (data.objetivos) {
+      this._objetivos.set({ ...this._objetivos(), ...data.objetivos });
+    }
+
+    if (Array.isArray(data.historial)) {
+      this._historial.set(
+        data.historial.map((h: any) => ({
+          ...h,
+          fecha: typeof h.fecha === 'string' ? h.fecha : new Date(h.fecha),
+        }))
+      );
+    }
   }
 }

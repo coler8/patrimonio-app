@@ -1,14 +1,11 @@
 <div class="container mx-auto px-4 py-8">
-  <!-- Header -->
   <header class="mb-8">
     <h1 class="text-4xl font-bold text-gray-800 mb-2">Mi Patrimonio Personal</h1>
     <p class="text-gray-600">Gestión inteligente de tus inversiones y ahorros</p>
   </header>
 
-  <!-- Resumen -->
   <app-resumen></app-resumen>
 
-  <!-- Tabs Navigation -->
   <div class="mb-8">
     <nav class="flex space-x-8 border-b">
       @for (tab of tabs; track tab.id) {
@@ -26,7 +23,6 @@
     </nav>
   </div>
 
-  <!-- Tab Content -->
   @switch (activeTab()) { @case ('mensual') {
   <app-distribucion-mensual />
   } @case ('objetivos') {
@@ -35,5 +31,7 @@
   <app-evolucion />
   } @case ('wealth') {
   <app-wealth-manager />
+  } @case ('finance') {
+  <app-finance-tracker />
   } }
 </div>

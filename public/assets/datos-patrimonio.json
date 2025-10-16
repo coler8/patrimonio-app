@@ -152,11 +152,11 @@
       "tradeRepublic": 55841,
       "zen": 0,
       "cryptos": {
-        "binance": 0,
-        "bitget": 0,
-        "quantfury": 0,
-        "simplefx": 0,
-        "coinbase": 0
+        "binance": 1101,
+        "bitget": 5014,
+        "quantfury": 1006,
+        "simplefx": 256,
+        "coinbase": 22
       }
     },
     {

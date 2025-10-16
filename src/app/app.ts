@@ -7,6 +7,7 @@ import { DistribucionMensualComponent } from './components/distribucion-mensual/
 import { ObjetivosComponent } from './components/objetivos/objetivos.component';
 import { EvolucionComponent } from './components/evolucion/evolucion.component';
 import { WealthManagerComponent } from './components/wealth-manager/wealth-manager.component';
+import { FinanceTrackerComponent } from './components/finance-tracker/finance-tracker.component';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ import { WealthManagerComponent } from './components/wealth-manager/wealth-manag
     ObjetivosComponent,
     EvolucionComponent,
     WealthManagerComponent,
+    FinanceTrackerComponent,
   ],
   templateUrl: './app.html',
 })
@@ -30,12 +32,13 @@ export class AppComponent implements OnInit {
     { id: 'objetivos', label: 'Objetivos' },
     { id: 'evolucion', label: 'Evolución' },
     { id: 'wealth', label: 'Manager' },
+    { id: 'finance', label: 'Ingresos y gastos' },
   ];
 
   constructor(private patrimonioService: PatrimonioService) {}
 
   ngOnInit() {
-    this.patrimonioService.cargarDatosDesdeJSON().subscribe({
+    this.patrimonioService.cargarPatrimonio().subscribe({
       next: (data) => console.log('Datos cargados', data),
       error: (err) => console.error('Error cargando JSON', err),
     });
