@@ -1,0 +1,220 @@
+<div class="wealth-manager">
+  <!-- Header -->
+  <div class="header-card">
+    <h1>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+      </svg>
+      Diversificación de Patrimonio
+    </h1>
+    <p>Gestiona tus objetivos financieros y distribución de ingresos</p>
+  </div>
+
+  <!-- Selector de Mes -->
+  <div class="mes-selector-card">
+    <div class="mes-controls">
+      <div class="mes-inputs">
+        <select [(ngModel)]="mesActual" class="select-mes">
+          <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
+        </select>
+        <input type="number" [(ngModel)]="anoActual" class="input-anio" />
+        <button (click)="guardarMesActual()" class="btn-primary">💾 Guardar Mes</button>
+        <button (click)="nuevoMes()" class="btn-secondary">➕ Nuevo Mes</button>
+      </div>
+      <div class="mes-actual" *ngIf="mesSeleccionado">
+        <span class="badge">Viendo: {{ mesSeleccionado }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial Mensual -->
+  <div class="historial-card" *ngIf="registrosMensuales.length > 0">
+    <h2>📅 Historial Mensual</h2>
+    <div class="historial-grid">
+      <div
+        *ngFor="let registro of registrosMensuales; let i = index"
+        class="historial-item"
+        [class.activo]="mesSeleccionado === registro.mes + ' ' + registro.anio"
+      >
+        <div class="historial-header">
+          <span class="historial-mes">{{ registro.mes }} {{ registro.anio }}</span>
+          <button (click)="eliminarMes(i)" class="btn-delete">🗑️</button>
+        </div>
+        <div class="historial-info">
+          <div class="info-item">
+            <span class="label">Patrimonio:</span>
+            <span class="value">€{{ registro.patrimonioTotal.toLocaleString() }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Nómina:</span>
+            <span class="value">€{{ registro.nomina.toLocaleString() }}</span>
+          </div>
+        </div>
+        <button (click)="cargarMes(registro)" class="btn-cargar">📂 Cargar datos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inputs principales -->
+  <div class="inputs-grid">
+    <div class="input-card">
+      <label>
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+          ></path>
+        </svg>
+        Patrimonio Total (€)
+      </label>
+      <input type="number" [(ngModel)]="patrimonioTotal" class="input-large" />
+    </div>
+    <div class="input-card">
+      <label>
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        Nómina Mensual (€)
+      </label>
+      <input type="number" [(ngModel)]="nomina" class="input-large" />
+    </div>
+  </div>
+
+  <!-- Patrimonio -->
+  <div class="section-card">
+    <h2>🎯 Distribución del Patrimonio</h2>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th>Objetivo (%)</th>
+            <th>Actual (%)</th>
+            <th>Monto Actual (€)</th>
+            <th>Cumplimiento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of objetivosPatrimonio">
+            <td>
+              <div class="categoria-cell">
+                <div class="color-dot" [style.backgroundColor]="item.color"></div>
+                <span>{{ item.categoria }}</span>
+              </div>
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="item.objetivo"
+                class="input-small"
+                min="0"
+                max="100"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="item.actual"
+                class="input-small"
+                min="0"
+                max="100"
+              />
+            </td>
+            <td class="monto">€{{ calcularMontoActual(item.actual) }}</td>
+            <td>
+              <span
+                class="badge-cumplimiento"
+                [class.cumplido]="calcularCumplimiento(item.objetivo, item.actual) >= '100'"
+              >
+                {{ calcularCumplimiento(item.objetivo, item.actual) }}%
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td>
+              <strong>{{ totalObjetivo.toFixed(1) }}%</strong>
+            </td>
+            <td>
+              <strong>{{ totalActual.toFixed(1) }}%</strong>
+            </td>
+            <td class="monto">
+              <strong>€{{ patrimonioTotal.toFixed(2) }}</strong>
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Nómina -->
+  <div class="section-card">
+    <h2>💰 Distribución de Nómina Mensual</h2>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Porcentaje (%)</th>
+            <th>Monto (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of reparticionNomina">
+            <td>
+              <div class="categoria-cell">
+                <div class="color-dot" [style.backgroundColor]="item.color"></div>
+                <span>{{ item.concepto }}</span>
+              </div>
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="item.porcentaje"
+                class="input-small"
+                min="0"
+                max="100"
+              />
+            </td>
+            <td class="monto">€{{ calcularMontoNomina(item.porcentaje) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td [class.error]="totalNomina !== 100">
+              <strong>{{ totalNomina.toFixed(1) }}%</strong>
+            </td>
+            <td class="monto">
+              <strong>€{{ nomina.toFixed(2) }}</strong>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+      <p *ngIf="totalNomina !== 100" class="warning">⚠️ El total debe sumar 100%</p>
+    </div>
+
+    <!-- Visualización de barras -->
+    <div class="progress-bars">
+      <div *ngFor="let item of reparticionNomina" class="progress-item">
+        <div class="progress-label">
+          <span class="concepto">{{ item.concepto }}</span>
+          <span class="porcentaje"
+            >{{ item.porcentaje }}% (€{{ calcularMontoNomina(item.porcentaje) }})</span
+          >
+        </div>
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="item.porcentaje"
+            [style.backgroundColor]="item.color"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

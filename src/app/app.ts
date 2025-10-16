@@ -6,6 +6,7 @@ import { PatrimonioService } from './@core/services/patrimonio.service';
 import { DistribucionMensualComponent } from './components/distribucion-mensual/distribucion-mensual.component';
 import { ObjetivosComponent } from './components/objetivos/objetivos.component';
 import { EvolucionComponent } from './components/evolucion/evolucion.component';
+import { WealthManagerComponent } from './components/wealth-manager/wealth-manager.component';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { EvolucionComponent } from './components/evolucion/evolucion.component';
     DistribucionMensualComponent,
     ObjetivosComponent,
     EvolucionComponent,
+    WealthManagerComponent,
   ],
   templateUrl: './app.html',
 })
@@ -27,6 +29,7 @@ export class AppComponent implements OnInit {
     { id: 'mensual', label: 'Distribución Mensual' },
     { id: 'objetivos', label: 'Objetivos' },
     { id: 'evolucion', label: 'Evolución' },
+    { id: 'wealth', label: 'Manager' },
   ];
 
   constructor(private patrimonioService: PatrimonioService) {}
