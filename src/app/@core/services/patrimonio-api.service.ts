@@ -17,14 +17,12 @@ export class PatrimonioApiService {
     });
   }
 
-  /** 🔹 Obtener tu patrimonio completo */
   getPatrimonio(): Observable<any> {
     return this.http
       .get(`${this.apiUrl}/${this.binId}`, { headers: this.headers })
-      .pipe(map((res: any) => res.record)); // JSONBin devuelve {record: {...}}
+      .pipe(map((res: any) => res.record)); 
   }
 
-  /** 🔹 Actualizar todo el JSON (por ejemplo, añadir mes nuevo) */
   updatePatrimonio(patrimonio: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${this.binId}`, patrimonio, {
       headers: this.headers,

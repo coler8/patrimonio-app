@@ -5,25 +5,64 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { HistorialDetalladoComponent } from '../../shared/historial-detallado/historial-detallado';
+import { SelectorMesesComponent } from '../../shared/selector-meses/selector-meses.component';
 import {
   CryptoDetail,
   CryptoWallet,
   DistribucionPatrimonio,
 } from '../../@core/models/patrimonio.model';
 import { MESES } from '../../@core/constants/meses.constants';
+import { PatrimonioApiService } from '../../@core/services/patrimonio-api.service';
+
+interface CategoriaPatrimonio {
+  categoria: string;
+  objetivo: number;
+  actual: number;
+  color: string;
+}
+
+interface ConceptoNomina {
+  concepto: string;
+  porcentaje: number;
+  color: string;
+}
 
 @Component({
   selector: 'app-distribucion-mensual',
   templateUrl: './distribucion-mensual.component.html',
-  imports: [CommonModule, FormsModule, BaseChartDirective, HistorialDetalladoComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    BaseChartDirective,
+    HistorialDetalladoComponent,
+    SelectorMesesComponent,
+  ],
   standalone: true,
 })
 export class DistribucionMensualComponent implements OnInit {
   public patrimonioService = inject(PatrimonioService);
+  public patrimonioApiService = inject(PatrimonioApiService);
 
   distribucionLocal!: DistribucionPatrimonio;
   porcentajes = this.patrimonioService.porcentajes;
   distribucion = this.patrimonioService.distribucion;
+
+  objetivosPatrimonio: CategoriaPatrimonio[] = [
+    { categoria: 'Liquidez', objetivo: 10, actual: 0, color: '#3B82F6' },
+    { categoria: 'Fondos Indexados', objetivo: 40, actual: 0, color: '#F59E0B' },
+    { categoria: 'Cryptos', objetivo: 15, actual: 0, color: '#EF4444' },
+    { categoria: 'Cuentas Remuneradas', objetivo: 35, actual: 0, color: '#10B981' },
+  ];
+
+  reparticionNomina: ConceptoNomina[] = [
+    { concepto: 'Ahorro/Inversión', porcentaje: 20, color: '#3b82f6' },
+    { concepto: 'Vivienda', porcentaje: 30, color: '#10b981' },
+    { concepto: 'Alimentación', porcentaje: 15, color: '#f59e0b' },
+    { concepto: 'Transporte', porcentaje: 10, color: '#8b5cf6' },
+    { concepto: 'Ocio', porcentaje: 10, color: '#ec4899' },
+    { concepto: 'Servicios', porcentaje: 10, color: '#06b6d4' },
+    { concepto: 'Otros', porcentaje: 5, color: '#6366f1' },
+  ];
 
   chartDistribucionOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -210,8 +249,33 @@ export class DistribucionMensualComponent implements OnInit {
   }
 
   guardarMes() {
+    // Actualizar el historial local
     this.patrimonioService.guardarEnLocalStorage();
-    alert('Mes guardado correctamente');
+
+    // Preparar los datos para la API
+    const patrimonioData = {
+      historial: this.patrimonioService.historial(),
+      objetivos: {
+        liquidez:
+          this.objetivosPatrimonio.find((obj) => obj.categoria === 'Efectivo/Ahorro')?.objetivo ||
+          0,
+        cryptos:
+          this.objetivosPatrimonio.find((obj) => obj.categoria === 'Criptomonedas')?.objetivo || 0,
+        fondosIndexados:
+          this.objetivosPatrimonio.find((obj) => obj.categoria === 'Inversiones')?.objetivo || 0,
+      },
+    };
+
+    // Enviar a la API
+    this.patrimonioApiService.updatePatrimonio(patrimonioData).subscribe({
+      next: () => {
+        alert('Mes guardado correctamente en local y en la API');
+      },
+      error: (error) => {
+        console.error('Error al guardar en la API:', error);
+        alert('Los datos se guardaron localmente pero hubo un error al guardar en la API');
+      },
+    });
   }
 
   totalCrypto() {
@@ -227,6 +291,24 @@ export class DistribucionMensualComponent implements OnInit {
     return baseTotal + this.totalCrypto();
   }
 
+  get totalObjetivo(): number {
+    return this.objetivosPatrimonio.reduce((acc, item) => acc + item.objetivo, 0);
+  }
+
+  get totalActual(): number {
+    return this.objetivosPatrimonio.reduce((acc, item) => acc + item.actual, 0);
+  }
+
+  actualizarMonto(categoria: string, nuevoMonto: number) {
+    const total = this.patrimonioService.patrimonioTotal();
+    const index = this.objetivosPatrimonio.findIndex((obj) => obj.categoria === categoria);
+    if (index !== -1) {
+      this.objetivosPatrimonio[index].actual = nuevoMonto;
+      // Actualizar el porcentaje objetivo basado en el nuevo monto
+      this.objetivosPatrimonio[index].objetivo = (nuevoMonto / total) * 100;
+    }
+  }
+
   private actualizarGraficos() {
     const mesSel = this.patrimonioService.mesSeleccionado(); // señal del mes
     const historial = this.patrimonioService.historial(); // historial completo
@@ -240,5 +322,51 @@ export class DistribucionMensualComponent implements OnInit {
     const crypto = this.patrimonioService.sumarCryptos(registro.cryptos);
 
     this.distribucionValues.set([liquidez, cuentaRemunerada, fondosIndexados, crypto]);
+
+    // Actualizar los montos actuales en objetivosPatrimonio
+    this.actualizarMontosActuales(registro);
+  }
+
+  private actualizarMontosActuales(registro: any) {
+    const total = this.patrimonioService.patrimonioTotal();
+
+    // Actualizar los montos actuales según la distribución real
+    this.objetivosPatrimonio = this.objetivosPatrimonio.map((obj) => {
+      let montoActual = 0;
+      switch (obj.categoria) {
+        case 'Inversiones':
+          montoActual = registro.fondosIndexados || 0;
+          break;
+        case 'Criptomonedas':
+          montoActual = this.patrimonioService.sumarCryptos(registro.cryptos);
+          break;
+        case 'Efectivo/Ahorro':
+          montoActual = (registro.sabadell || 0) + (registro.zen || 0);
+          break;
+        case 'Propiedades':
+          montoActual = (registro.tradeRepublic || 0) + (registro.myInvestor || 0);
+          break;
+      }
+      return {
+        ...obj,
+        actual: montoActual,
+      };
+    });
+  }
+
+  calcularMontoActual(objetivo: number): number {
+    const total = this.patrimonioService.patrimonioTotal();
+    return (objetivo / 100) * total;
+  }
+
+  calcularPorcentajeActual(monto: number): number {
+    const total = this.patrimonioService.patrimonioTotal();
+    if (total === 0) return 0;
+    return (monto / total) * 100;
+  }
+
+  calcularCumplimiento(objetivo: number, actual: number): string {
+    if (objetivo === 0) return '0';
+    return ((actual / objetivo) * 100).toFixed(1);
   }
 }

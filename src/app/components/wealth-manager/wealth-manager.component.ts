@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PatrimonioService } from '../../@core/services/patrimonio.service';
+import { PatrimonioApiService } from '../../@core/services/patrimonio-api.service';
+import { SelectorMesesComponent } from '../../shared/selector-meses/selector-meses.component';
 
 interface CategoriaPatrimonio {
   categoria: string;
@@ -27,7 +30,7 @@ interface RegistroMensual {
 @Component({
   selector: 'app-wealth-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SelectorMesesComponent],
   templateUrl: './wealth-manager.component.html',
   styleUrls: ['./wealth-manager.component.css'],
 })
@@ -37,12 +40,14 @@ export class WealthManagerComponent {
   mesActual = '';
   anoActual = 2024;
 
+  public patrimonioService = inject(PatrimonioService);
+  public patrimonioApiService = inject(PatrimonioApiService);
+
   objetivosPatrimonio: CategoriaPatrimonio[] = [
-    { categoria: 'Inversiones', objetivo: 40, actual: 35, color: '#3b82f6' },
-    { categoria: 'Criptomonedas', objetivo: 15, actual: 10, color: '#f59e0b' },
-    { categoria: 'Propiedades', objetivo: 30, actual: 40, color: '#10b981' },
-    { categoria: 'Efectivo/Ahorro', objetivo: 10, actual: 10, color: '#8b5cf6' },
-    { categoria: 'Otros Activos', objetivo: 5, actual: 5, color: '#ec4899' },
+    { categoria: 'Liquidez', objetivo: 10, actual: 0, color: '#3B82F6' },
+    { categoria: 'Fondos Indexados', objetivo: 40, actual: 0, color: '#F59E0B' },
+    { categoria: 'Cryptos', objetivo: 15, actual: 0, color: '#EF4444' },
+    { categoria: 'Cuentas Remuneradas', objetivo: 35, actual: 0, color: '#10B981' },
   ];
 
   reparticionNomina: ConceptoNomina[] = [
@@ -76,6 +81,7 @@ export class WealthManagerComponent {
   constructor() {
     this.inicializarMesActual();
     this.cargarDatosGuardados();
+    this.sincronizarConDistribucion();
   }
 
   inicializarMesActual() {
@@ -118,7 +124,29 @@ export class WealthManagerComponent {
       return this.meses.indexOf(b.mes) - this.meses.indexOf(a.mes);
     });
 
-    alert(`Datos guardados para ${this.mesActual} ${this.anoActual}`);
+    // Preparar datos para la API
+    const patrimonioData = {
+      historial: this.patrimonioService.historial(),
+      objetivos: {
+        liquidez:
+          this.objetivosPatrimonio.find((obj) => obj.categoria === 'Liquidez')?.objetivo || 0,
+        cryptos: this.objetivosPatrimonio.find((obj) => obj.categoria === 'Cryptos')?.objetivo || 0,
+        fondosIndexados:
+          this.objetivosPatrimonio.find((obj) => obj.categoria === 'Fondos Indexados')?.objetivo ||
+          0,
+      },
+    };
+
+    // Guardar en la API
+    this.patrimonioApiService.updatePatrimonio(patrimonioData).subscribe({
+      next: () => {
+        alert('Datos guardados correctamente en local y en la API');
+      },
+      error: (error) => {
+        console.error('Error al guardar en la API:', error);
+        alert('Los datos se guardaron localmente pero hubo un error al guardar en la API');
+      },
+    });
   }
 
   cargarMes(registro: RegistroMensual) {
@@ -139,6 +167,22 @@ export class WealthManagerComponent {
   eliminarMes(index: number) {
     if (confirm('¿Estás seguro de eliminar este registro?')) {
       this.registrosMensuales.splice(index, 1);
+    }
+  }
+
+  cargarMesActual(mes: string) {
+    this.mesActual = mes;
+    const registro = this.registrosMensuales.find(
+      (r) => r.mes === mes && r.anio === this.anoActual
+    );
+
+    if (registro) {
+      this.cargarMes(registro);
+    } else {
+      // Si no hay registro para este mes, inicializar con valores por defecto
+      this.patrimonioTotal = 0;
+      this.objetivosPatrimonio.forEach((obj) => (obj.actual = 0));
+      this.sincronizarConDistribucion();
     }
   }
 
@@ -181,5 +225,41 @@ export class WealthManagerComponent {
         100
       ).toFixed(2),
     };
+  }
+
+  actualizarMontoCategoria(nuevoMonto: number, categoria: CategoriaPatrimonio) {
+    categoria.actual = nuevoMonto;
+    this.actualizarPatrimonioTotal();
+    this.sincronizarConDistribucion();
+  }
+
+  private actualizarPatrimonioTotal() {
+    this.patrimonioTotal = this.objetivosPatrimonio.reduce((total, cat) => total + cat.actual, 0);
+  }
+
+  private sincronizarConDistribucion() {
+    const cryptoActual =
+      this.objetivosPatrimonio.find((obj) => obj.categoria === 'Cryptos')?.actual || 0;
+
+    const distribucion = {
+      liquidez: this.objetivosPatrimonio.find((obj) => obj.categoria === 'Liquidez')?.actual || 0,
+      zen: 0,
+      tradeRepublic: 0,
+      myInvestor: 0,
+      fondosIndexados:
+        this.objetivosPatrimonio.find((obj) => obj.categoria === 'Fondos Indexados')?.actual || 0,
+      cryptos: {
+        binance: 0,
+        bitget: 0,
+        quantfury: 0,
+        simplefx: 0,
+        coinbase: cryptoActual,
+      },
+      cuentasRemuneradas:
+        this.objetivosPatrimonio.find((obj) => obj.categoria === 'Cuentas Remuneradas')?.actual ||
+        0,
+    };
+
+    this.patrimonioService.actualizarDistribucion(distribucion);
   }
 }
