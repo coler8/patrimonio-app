@@ -6,7 +6,6 @@ import { PatrimonioService } from './@core/services/patrimonio.service';
 import { DistribucionMensualComponent } from './components/distribucion-mensual/distribucion-mensual.component';
 import { ObjetivosComponent } from './components/objetivos/objetivos.component';
 import { EvolucionComponent } from './components/evolucion/evolucion.component';
-import { WealthManagerComponent } from './components/wealth-manager/wealth-manager.component';
 import { FinanceTrackerComponent } from './components/finance-tracker/finance-tracker.component';
 
 @Component({
@@ -19,7 +18,6 @@ import { FinanceTrackerComponent } from './components/finance-tracker/finance-tr
     DistribucionMensualComponent,
     ObjetivosComponent,
     EvolucionComponent,
-    WealthManagerComponent,
     FinanceTrackerComponent,
   ],
   templateUrl: './app.html',
@@ -31,7 +29,6 @@ export class AppComponent implements OnInit {
     { id: 'mensual', label: 'Distribución Mensual' },
     { id: 'objetivos', label: 'Objetivos' },
     { id: 'evolucion', label: 'Evolución' },
-    { id: 'wealth', label: 'Manager' },
     { id: 'finance', label: 'Ingresos y gastos' },
   ];
 

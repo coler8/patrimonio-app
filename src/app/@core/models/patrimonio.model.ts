@@ -79,3 +79,21 @@ export enum CryptoWallet {
   SIMPLEFX = 'simplefx',
   COINBASE = 'coinbase',
 }
+
+export type DesgloseBase = {
+  titulo: string;
+  color: string;
+  tipo?: 'crypto'; // opcional para criptos
+};
+
+export interface DesgloseNormal extends DesgloseBase {
+  tipo?: undefined;
+  campos: { nombre: string; key: keyof DistribucionPatrimonio }[];
+}
+
+export interface DesgloseCrypto extends DesgloseBase {
+  tipo: 'crypto';
+  campos: CryptoWallet[];
+}
+
+export type Desglose = DesgloseNormal | DesgloseCrypto;

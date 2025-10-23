@@ -7,8 +7,8 @@ import { BaseChartDirective } from 'ng2-charts';
 import { HistorialDetalladoComponent } from '../../shared/historial-detallado/historial-detallado';
 import { SelectorMesesComponent } from '../../shared/selector-meses/selector-meses.component';
 import {
-  CryptoDetail,
   CryptoWallet,
+  Desglose,
   DistribucionPatrimonio,
 } from '../../@core/models/patrimonio.model';
 import { MESES } from '../../@core/constants/meses.constants';
@@ -46,12 +46,54 @@ export class DistribucionMensualComponent implements OnInit {
   distribucionLocal!: DistribucionPatrimonio;
   porcentajes = this.patrimonioService.porcentajes;
   distribucion = this.patrimonioService.distribucion;
+  resumen = this.patrimonioService.resumen;
+  patrimonioTotal = this.resumen().total;
+  nomina = this.resumen().ingresosMensuales;
 
   objetivosPatrimonio: CategoriaPatrimonio[] = [
     { categoria: 'Liquidez', objetivo: 10, actual: 0, color: '#3B82F6' },
     { categoria: 'Fondos Indexados', objetivo: 40, actual: 0, color: '#F59E0B' },
     { categoria: 'Cryptos', objetivo: 15, actual: 0, color: '#EF4444' },
     { categoria: 'Cuentas Remuneradas', objetivo: 35, actual: 0, color: '#10B981' },
+  ];
+
+  desgloses: Desglose[] = [
+    {
+      titulo: 'Liquidez',
+      color: '#3B82F6',
+      campos: [
+        { nombre: 'Sabadell', key: 'liquidez' },
+        { nombre: 'Zen', key: 'zen' },
+      ],
+    },
+    {
+      titulo: 'Cuentas Remuneradas',
+      color: '#10B981',
+      campos: [
+        { nombre: 'Trade Republic', key: 'tradeRepublic' },
+        { nombre: 'MyInvestor', key: 'myInvestor' },
+      ],
+    },
+    {
+      titulo: 'Fondos indexados',
+      color: '#10B981',
+      campos: [
+        { nombre: 'MSCI WORLD', key: 'fondosIndexados' },
+        { nombre: 'Emerging markets', key: 'fondosIndexados' },
+      ],
+    },
+    {
+      titulo: 'Cryptos',
+      color: '#EF4444',
+      tipo: 'crypto',
+      campos: [
+        CryptoWallet.BINANCE,
+        CryptoWallet.BITGET,
+        CryptoWallet.QUANTFURY,
+        CryptoWallet.SIMPLEFX,
+        CryptoWallet.COINBASE,
+      ],
+    },
   ];
 
   reparticionNomina: ConceptoNomina[] = [
@@ -162,6 +204,7 @@ export class DistribucionMensualComponent implements OnInit {
   ];
 
   historial = this.patrimonioService.historial;
+
   historialOrdenado = this.historial().sort((a, b) => {
     const fechaA = typeof a.fecha === 'string' ? new Date(a.fecha) : a.fecha;
     const fechaB = typeof b.fecha === 'string' ? new Date(b.fecha) : b.fecha;
@@ -299,6 +342,10 @@ export class DistribucionMensualComponent implements OnInit {
     return this.objetivosPatrimonio.reduce((acc, item) => acc + item.actual, 0);
   }
 
+  get totalNomina(): number {
+    return this.reparticionNomina.reduce((acc, item) => acc + item.porcentaje, 0);
+  }
+
   actualizarMonto(categoria: string, nuevoMonto: number) {
     const total = this.patrimonioService.patrimonioTotal();
     const index = this.objetivosPatrimonio.findIndex((obj) => obj.categoria === categoria);
@@ -307,6 +354,76 @@ export class DistribucionMensualComponent implements OnInit {
       // Actualizar el porcentaje objetivo basado en el nuevo monto
       this.objetivosPatrimonio[index].objetivo = (nuevoMonto / total) * 100;
     }
+  }
+
+  calcularMontoNomina(porcentaje: number): string {
+    return ((porcentaje / 100) * this.nomina).toFixed(2);
+  }
+
+  actualizarMontoCategoria(nuevoMonto: number, categoria: CategoriaPatrimonio) {
+    categoria.actual = nuevoMonto;
+    this.actualizarPatrimonioTotal();
+    this.sincronizarConDistribucion();
+  }
+
+  getBackgroundLogo(titulo: string): string | null {
+    switch (titulo) {
+      case 'Cuentas Remuneradas':
+        return 'assets/logos/trade.png';
+      case 'Cryptos':
+        return 'assets/logos/bitcoin.png';
+      case 'Fondos indexados':
+        return 'assets/logos/myinvestor.jpg';
+      case 'Liquidez':
+        return 'assets/logos/sabadell.png';
+      default:
+        return null;
+    }
+  }
+
+  getBackgroundClass(titulo: string): string {
+    switch (titulo) {
+      case 'Cuentas Remuneradas':
+        return 'bg-gradient-to-br from-green-50 to-white';
+      case 'Cryptos':
+        return 'bg-gradient-to-br from-red-50 to-white';
+      case 'Fondos indexados':
+        return 'bg-gradient-to-br from-blue-50 to-white';
+      case 'Liquidez':
+        return 'bg-gradient-to-br from-sky-50 to-white';
+      default:
+        return 'bg-white';
+    }
+  }
+
+  private actualizarPatrimonioTotal() {
+    this.patrimonioTotal = this.objetivosPatrimonio.reduce((total, cat) => total + cat.actual, 0);
+  }
+
+  private sincronizarConDistribucion() {
+    const cryptoActual =
+      this.objetivosPatrimonio.find((obj) => obj.categoria === 'Cryptos')?.actual || 0;
+
+    const distribucion = {
+      liquidez: this.objetivosPatrimonio.find((obj) => obj.categoria === 'Liquidez')?.actual || 0,
+      zen: 0,
+      tradeRepublic: 0,
+      myInvestor: 0,
+      fondosIndexados:
+        this.objetivosPatrimonio.find((obj) => obj.categoria === 'Fondos Indexados')?.actual || 0,
+      cryptos: {
+        binance: 0,
+        bitget: 0,
+        quantfury: 0,
+        simplefx: 0,
+        coinbase: cryptoActual,
+      },
+      cuentasRemuneradas:
+        this.objetivosPatrimonio.find((obj) => obj.categoria === 'Cuentas Remuneradas')?.actual ||
+        0,
+    };
+
+    this.patrimonioService.actualizarDistribucion(distribucion);
   }
 
   private actualizarGraficos() {

@@ -1,407 +1,240 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-8">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
-    <div class="mb-8 text-center">
-      <h1
-        class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2"
-      >
-        Gestor Financiero Personal
-      </h1>
-      <p class="text-gray-400 text-lg">Controla tus finanzas de forma inteligente</p>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div
-        class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:scale-105 transition-transform"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <svg class="w-8 h-8 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-            />
-          </svg>
-          <div
-            class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 opacity-20"
-          ></div>
-        </div>
-        <p class="text-gray-300 text-sm mb-1">Ingresos Totales</p>
-        <p class="text-3xl font-bold text-white">{{ totalIngresos() }}€</p>
-      </div>
-
-      <div
-        class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:scale-105 transition-transform"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <svg class="w-8 h-8 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-            />
-          </svg>
-          <div
-            class="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-pink-600 opacity-20"
-          ></div>
-        </div>
-        <p class="text-gray-300 text-sm mb-1">Gastos Totales</p>
-        <p class="text-3xl font-bold text-white">{{ totalGastos() }}€</p>
-      </div>
-
-      <div
-        class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:scale-105 transition-transform"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <svg class="w-8 h-8 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
-            />
-          </svg>
-          <div
-            class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-cyan-600 opacity-20"
-          ></div>
-        </div>
-        <p class="text-gray-300 text-sm mb-1">Inversiones</p>
-        <p class="text-3xl font-bold text-white">{{ totalInversiones() }}€</p>
-      </div>
-
-      <div
-        class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:scale-105 transition-transform"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <svg class="w-8 h-8 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-            />
-          </svg>
-          <div
-            class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-indigo-600 opacity-20"
-          ></div>
-        </div>
-        <p class="text-gray-300 text-sm mb-1">Balance</p>
-        <p class="text-3xl font-bold text-white">{{ totalBalance() }}€</p>
+    <div class="bg-emerald-500 text-white p-6 rounded-t-2xl shadow-lg">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Control de Gastos</h1>
+        <span class="text-sm opacity-90">PlanillaExcel.com</span>
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex gap-4 mb-8">
-      <button
-        (click)="showAddTransaction.set(!showAddTransaction())"
-        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-cyan-500/50"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Nueva Transacción
-      </button>
-      <button
-        (click)="showEditCategories.set(!showEditCategories())"
-        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/50"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
-        Editar Categorías
-      </button>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+      <!-- Left Summary -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-200">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div class="bg-emerald-300 p-4 rounded-lg text-center">
+            <div class="text-sm font-semibold">INGRESOS</div>
+            <div class="text-xl font-bold">{{ currentMonthIngresos() }} €</div>
+          </div>
+          <div class="bg-red-200 p-4 rounded-lg text-center">
+            <div class="text-sm font-semibold">GASTOS</div>
+            <div class="text-xl font-bold">{{ currentMonthGastosTotal() }} €</div>
+          </div>
+          <div class="bg-red-300 p-4 rounded-lg text-center">
+            <div class="text-sm font-semibold">GASTOS FIJOS</div>
+            <div class="text-xl font-bold">{{ currentMonthGastosFijos() }} €</div>
+          </div>
+          <div class="bg-yellow-200 p-4 rounded-lg text-center">
+            <div class="text-sm font-semibold">INVERSION</div>
+            <div class="text-xl font-bold">{{ currentMonthInversion() }} €</div>
+          </div>
+        </div>
+        <div class="bg-red-600 text-white p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold">{{ totalBalance() }} €</div>
+        </div>
+      </div>
+
+      <!-- Right Summary - Categories -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-200">
+        <h3 class="text-center font-bold text-lg mb-4 bg-blue-200 p-2 rounded">
+          DESGLOSE POR CATEGORÍAS
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <div class="bg-emerald-300 p-2 text-center font-bold mb-2">INGRESOS</div>
+            <div class="space-y-1 text-sm max-h-40 overflow-y-auto">
+              @for (item of categoryReportByType('ingreso'); track item.category) {
+              <div class="flex justify-between px-2">
+                <span class="text-xs">{{ item.category }}</span>
+                <span class="font-semibold">{{ item.amount }} €</span>
+              </div>
+              } @if (categoryReportByType('ingreso').length === 0) {
+              <div class="text-gray-400 text-center py-2">Sin ingresos</div>
+              }
+            </div>
+            <div class="border-t-2 border-black mt-2 pt-2 flex justify-between px-2 font-bold">
+              <span>TOTAL</span>
+              <span>{{ currentMonthIngresos() }} €</span>
+            </div>
+          </div>
+          <div>
+            <div class="bg-yellow-200 p-2 text-center font-bold mb-2">INVERSION</div>
+            <div class="space-y-1 text-sm max-h-40 overflow-y-auto">
+              @for (item of categoryReportByType('inversion'); track item.category) {
+              <div class="flex justify-between px-2">
+                <span class="text-xs">{{ item.category }}</span>
+                <span class="font-semibold">{{ item.amount }} €</span>
+              </div>
+              } @if (categoryReportByType('inversion').length === 0) {
+              <div class="text-gray-400 text-center py-2">Sin inversiones</div>
+              }
+            </div>
+            <div class="border-t-2 border-black mt-2 pt-2 flex justify-between px-2 font-bold">
+              <span>TOTAL</span>
+              <span>{{ currentMonthInversion() }} €</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Add Transaction Form -->
-    @if (showAddTransaction()) {
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
-      <h3 class="text-xl font-bold text-white mb-4">Nueva Transacción</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Main Table -->
+    <div class="bg-emerald-500 text-white p-4 rounded-t-lg">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <h2 class="text-xl font-bold">Detalle de Transacciones</h2>
         <select
-          [(ngModel)]="newTransaction.month"
-          class="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+          [ngModel]="currentMonth()"
+          (ngModelChange)="changeMonth($event)"
+          class="bg-white text-emerald-700 px-4 py-2 rounded font-bold"
         >
           @for (month of months; track month) {
           <option [value]="month">{{ month }}</option>
           }
         </select>
-
-        <select
-          [(ngModel)]="newTransaction.type"
-          (ngModelChange)="onTypeChange()"
-          class="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-        >
-          <option value="gasto">Gasto</option>
-          <option value="ingreso">Ingreso</option>
-          <option value="inversion">Inversión</option>
-        </select>
-
-        <select
-          [(ngModel)]="newTransaction.category"
-          (ngModelChange)="onCategoryChange()"
-          class="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-        >
-          <option value="">Seleccionar categoría</option>
-          @for (cat of filteredCategories(); track cat.id) {
-          <option [value]="cat.name">{{ cat.name }}</option>
-          }
-        </select>
-
-        <select
-          [(ngModel)]="newTransaction.subcategory"
-          [disabled]="!newTransaction.category"
-          class="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none disabled:opacity-50"
-        >
-          <option value="">Seleccionar subcategoría</option>
-          @for (sub of selectedCategorySubcategories(); track sub) {
-          <option [value]="sub">{{ sub }}</option>
-          }
-        </select>
-
-        <input
-          type="number"
-          [(ngModel)]="newTransaction.amount"
-          placeholder="Cantidad"
-          class="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-        />
-
-        <button
-          (click)="addTransaction()"
-          class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all"
-        >
-          Añadir
-        </button>
+      </div>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+          Total Gastos = <span class="font-bold">{{ currentMonthGastosTotal() }} €</span>
+        </div>
+        <div>
+          Gasto Máximo = <span class="font-bold">{{ gastoMaximo() }} €</span>
+        </div>
+        <div class="bg-yellow-300 text-black px-2 rounded text-center">
+          BALANCE: {{ totalBalance() }} €
+        </div>
+        <div>
+          Total Transacciones = <span class="font-bold">{{ filteredTransactions().length }}</span>
+        </div>
+        <div>
+          Gasto Mínimo = <span class="font-bold">{{ gastoMinimo() }} €</span>
+        </div>
       </div>
     </div>
-    }
 
-    <!-- Edit Categories -->
-    @if (showEditCategories()) {
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-white">Gestionar Categorías</h3>
-        <button
-          (click)="addCategory()"
-          class="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
-        >
-          + Nueva Categoría
-        </button>
-      </div>
-      <div class="space-y-3">
-        @for (cat of categories(); track cat.id) {
-        <div class="bg-white/5 p-4 rounded-xl border border-white/10">
-          <div class="flex items-center justify-between mb-2">
-            @if (editingCategory() === cat.id) {
-            <div class="flex items-center gap-2 flex-1">
+    <div class="bg-white shadow-2xl rounded-b-2xl overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-emerald-100 text-emerald-800">
+            <th class="p-3 text-left border">TIPO</th>
+            <th class="p-3 text-left border">CATEGORÍA</th>
+            <th class="p-3 text-left border">SUBCATEGORÍA</th>
+            <th class="p-3 text-left border">DETALLE</th>
+            <th class="p-3 text-right border">IMPORTE</th>
+            <th class="p-3 text-center border">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of filteredTransactions(); track t.id; let idx = $index) {
+          <tr [class]="idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'">
+            <td class="p-3 border">
+              <span
+                class="px-2 py-1 rounded text-xs font-semibold"
+                [class.bg-green-200]="t.type === 'ingreso'"
+                [class.bg-red-200]="t.type === 'gasto'"
+                [class.bg-orange-200]="t.type === 'gasto_fijo'"
+                [class.bg-yellow-200]="t.type === 'inversion'"
+              >
+                {{ t.type === 'gasto_fijo' ? 'GASTO FIJO' : t.type.toUpperCase() }}
+              </span>
+            </td>
+            <td class="p-3 border">{{ t.category }}</td>
+            <td class="p-3 border">{{ t.subcategory }}</td>
+            <td class="p-3 border">{{ t.detail }}</td>
+            <td
+              class="p-3 border text-right font-semibold"
+              [class.text-green-600]="t.type === 'ingreso'"
+              [class.text-red-600]="t.type === 'gasto' || t.type === 'gasto_fijo'"
+              [class.text-yellow-600]="t.type === 'inversion'"
+            >
+              {{ t.type === 'ingreso' ? '+' : '-' }}{{ t.amount.toFixed(2) }} €
+            </td>
+            <td class="p-3 border text-center">
+              <button
+                (click)="deleteTransaction(t.id)"
+                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+              >
+                🗑️
+              </button>
+            </td>
+          </tr>
+          } @if (filteredTransactions().length === 0) {
+          <tr>
+            <td colspan="6" class="p-8 text-center text-gray-400">
+              No hay transacciones para {{ currentMonth() }}
+            </td>
+          </tr>
+          }
+          <!-- New Row Input -->
+          <tr class="bg-emerald-50 border-t-4 border-emerald-500">
+            <td class="p-2 border">
+              <select
+                [ngModel]="newRowType()"
+                (ngModelChange)="newRowType.set($event); onTypeChange()"
+                class="w-full p-2 border rounded font-semibold text-sm"
+              >
+                <option value="gasto">GASTO</option>
+                <option value="gasto_fijo">GASTO FIJO</option>
+                <option value="ingreso">INGRESO</option>
+                <option value="inversion">INVERSIÓN</option>
+              </select>
+            </td>
+            <td class="p-2 border">
+              <select
+                [ngModel]="newRowCategory()"
+                (ngModelChange)="newRowCategory.set($event); onCategoryChange()"
+                class="w-full p-2 border rounded text-sm"
+              >
+                <option value="">Seleccionar...</option>
+                @for (cat of filteredCategories(); track cat.name) {
+                <option [value]="cat.name">{{ cat.name }}</option>
+                }
+              </select>
+            </td>
+            <td class="p-2 border">
+              <select
+                [ngModel]="newRowSubcategory()"
+                (ngModelChange)="newRowSubcategory.set($event)"
+                [disabled]="!newRowCategory()"
+                class="w-full p-2 border rounded disabled:opacity-50 text-sm"
+              >
+                <option value="">Seleccionar...</option>
+                @for (sub of selectedSubcategories(); track sub) {
+                <option [value]="sub">{{ sub }}</option>
+                }
+              </select>
+            </td>
+            <td class="p-2 border">
               <input
                 type="text"
-                [(ngModel)]="newCategoryName"
-                class="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                [ngModel]="newRowDetail()"
+                (ngModelChange)="newRowDetail.set($event)"
+                placeholder="Detalle..."
+                class="w-full p-2 border rounded text-sm"
               />
-              <button (click)="saveCategory(cat.id)" class="p-2 bg-green-500 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </button>
-              <button (click)="editingCategory.set(null)" class="p-2 bg-red-500 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            } @else {
-            <div>
-              <span class="text-white font-semibold">{{ cat.name }}</span>
-              <span class="ml-2 text-xs px-2 py-1 bg-white/20 rounded-full text-gray-300">{{
-                cat.type
-              }}</span>
-            </div>
-            <div class="flex gap-2">
+            </td>
+            <td class="p-2 border">
+              <input
+                type="number"
+                [ngModel]="newRowAmount()"
+                (ngModelChange)="newRowAmount.set($event)"
+                placeholder="0.00"
+                step="0.01"
+                class="w-full p-2 border rounded text-right text-sm"
+              />
+            </td>
+            <td class="p-2 border text-center">
               <button
-                (click)="addSubcategory(cat.id)"
-                class="p-2 bg-blue-500/50 rounded-lg hover:bg-blue-500"
+                (click)="addTransaction()"
+                [disabled]="!canAddTransaction()"
+                class="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
+                ➕ Añadir
               </button>
-              <button
-                (click)="startEditCategory(cat)"
-                class="p-2 bg-yellow-500/50 rounded-lg hover:bg-yellow-500"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </button>
-              <button
-                (click)="deleteCategory(cat.id)"
-                class="p-2 bg-red-500/50 rounded-lg hover:bg-red-500"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-            </div>
-            }
-          </div>
-          <div class="flex flex-wrap gap-2 mt-2">
-            @for (sub of cat.subcategories; track sub) {
-            <span class="px-3 py-1 bg-white/10 rounded-full text-sm text-gray-300">{{ sub }}</span>
-            }
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- Monthly Summary -->
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
-      <h3 class="text-xl font-bold text-white mb-4">Resumen Mensual</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-white/20">
-              <th class="text-left py-3 px-4 text-gray-300">Mes</th>
-              <th class="text-right py-3 px-4 text-green-400">Ingresos</th>
-              <th class="text-right py-3 px-4 text-red-400">Gastos</th>
-              <th class="text-right py-3 px-4 text-blue-400">Inversiones</th>
-              <th class="text-right py-3 px-4 text-purple-400">Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (month of months; track month) {
-            <tr class="border-b border-white/10 hover:bg-white/5">
-              <td class="py-3 px-4 text-white font-medium">{{ month }}</td>
-              <td class="py-3 px-4 text-right text-green-400">
-                {{ monthlyTotals()[month]?.ingresos || 0 }}€
-              </td>
-              <td class="py-3 px-4 text-right text-red-400">
-                {{ monthlyTotals()[month]?.gastos || 0 }}€
-              </td>
-              <td class="py-3 px-4 text-right text-blue-400">
-                {{ monthlyTotals()[month]?.inversiones || 0 }}€
-              </td>
-              <td class="py-3 px-4 text-right text-purple-400 font-bold">
-                {{ monthlyTotals()[month]?.balance || 0 }}€
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Yearly Report by Category -->
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
-      <h3 class="text-xl font-bold text-white mb-4">Reporte Anual por Categorías</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        @for (type of ['gastos', 'ingresos', 'inversiones']; track type) {
-        <div class="bg-white/5 rounded-xl p-4">
-          <h4 class="text-lg font-semibold text-white mb-3 capitalize">{{ type }}</h4>
-          <div class="space-y-2">
-            @for (item of getYearlyReportByType(type); track item.category) {
-            <div class="flex justify-between items-center">
-              <span class="text-gray-300 text-sm">{{ item.category }}</span>
-              <span class="text-white font-semibold">{{ item.amount }}€</span>
-            </div>
-            }
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Transactions List -->
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-white">Transacciones</h3>
-        <select
-          [(ngModel)]="selectedMonth"
-          class="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-        >
-          <option value="Todos">Todos los meses</option>
-          @for (month of months; track month) {
-          <option [value]="month">{{ month }}</option>
-          }
-        </select>
-      </div>
-      <div class="space-y-3">
-        @for (t of displayedTransactions(); track t.id) {
-        <div
-          class="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-center hover:bg-white/10 transition-colors"
-        >
-          <div>
-            <p class="text-white font-semibold">{{ t.category }} - {{ t.subcategory }}</p>
-            <p class="text-gray-400 text-sm">{{ t.month }} {{ t.year }}</p>
-          </div>
-          <div class="flex items-center gap-4">
-            <span
-              [class]="'text-xl font-bold ' + (t.amount > 0 ? 'text-green-400' : 'text-red-400')"
-            >
-              {{ t.amount > 0 ? '+' : '' }}{{ t.amount }}€
-            </span>
-            <button
-              (click)="deleteTransaction(t.id)"
-              class="p-2 bg-red-500/50 rounded-lg hover:bg-red-500 transition-colors"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        }
-      </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
